@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+  <link rel="stylesheet" crossorigin="anonymous"
+    href="https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Medium.min.css" />
+  <link rel="stylesheet" crossorigin="anonymous"
+    href="https://cdn.jsdelivr.net/npm/misans@4.1.0/lib/Normal/MiSans-Bold.min.css" />
+  <style>
+    :root {
+      --global-font-size: 15px;
+      --global-line-height: 1.4em;
+      --global-space: 10px;
+      --font-stack: 'MiSans', sans-serif;
+      --mono-font-stack: "MiSans", monospace;
+      --background-color: #222225;
+      --page-width: 60em;
+      --font-color: #e8e9ed;
+      --invert-font-color: #222225;
+      --secondary-color: #a3abba;
+      --tertiary-color: #a3abba;
+      --primary-color: #62c4ff;
+      --error-color: #ff3c74;
+      --progress-bar-background: #3f3f44;
+      --progress-bar-fill: #62c4ff;
+      --code-bg-color: #3f3f44;
+      --input-style: solid;
+      --display-h1-decoration: none;
+    }
+  </style>
+</head>
+
+<body class="terminal">
+
+
+  <div class="container">
+    <div class="terminal-nav">
+      <header class="terminal-logo">
+        <div class="logo terminal-prompt"><a href="#" class="no-style">{{ title }}</a></div>
+      </header>
+    </div>
+  </div>
+
+  <div class="container">
+    <section>
+      <header>
+        <h2>目录</h2>
+      </header>
+      <nav>
+        <ul>
+          {% for section in sections %}
+          <li><a href="#{{ section.id }}">{{ section.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </section>
+
+    {% for section in sections %}
+    <section>
+      <div id="{{ section.id }}"></div>
+      {{ section.content | safe }}
+    </section>
+    {% endfor %}
+  </div>
+
+</body>
+
+</html>
