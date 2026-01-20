@@ -49,6 +49,29 @@ def process_image(img_path: Path, output_dir: Path) -> str:
     logging.info(f"图片处理完成: {img_path} -> {relative_path}")
     return relative_path
 
+def process_all_media_images(content_dir: Path, output_dir: Path) -> None:
+    """处理content/media目录中的所有图片"""
+    # 检查content/media目录是否存在
+    media_dir = content_dir / "media"
+    if not media_dir.exists():
+        logging.info(f"媒体目录不存在，跳过图片处理: {media_dir}")
+        return
+    
+    logging.info(f"开始处理媒体目录中的图片: {media_dir}")
+    
+    # 获取目录中的所有图片文件
+    image_extensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"]
+    image_files = [f for f in media_dir.iterdir() 
+                  if f.is_file() and f.suffix.lower() in image_extensions]
+    
+    logging.info(f"找到 {len(image_files)} 个图片文件")
+    for img_file in image_files:
+        logging.debug(f"  - {img_file}")
+        process_image(img_file, output_dir)
+    
+    logging.info(f"媒体目录图片处理完成: {media_dir}")
+
+
 def read_template(template_file: Path) -> Template:
     """读取模板文件"""
     logging.info(f"读取模板文件: {template_file}")
@@ -67,24 +90,8 @@ def process_markdown_file(md_file: Path, content_dir: Path, output_dir: Path) ->
         md_content = f.read()
     logging.debug(f"markdown文件大小: {len(md_content)} 字节")
     
-    # 处理markdown中的图片
-    def replace_img(match):
-        alt_text = match.group(1)
-        img_path = match.group(2)
-        logging.debug(f"发现图片: {img_path}, alt: {alt_text}")
-        # 解析图片路径
-        if img_path.startswith("./"):
-            full_img_path = content_dir / img_path[2:]
-            # 处理图片
-            new_img_path = process_image(full_img_path, output_dir)
-            return f"![{alt_text}]({new_img_path})"
-        return match.group(0)
-    
-    # 使用正则表达式替换图片路径
-    processed_md_content = re.sub(r"!\[(.*?)\]\((.*?)\)", replace_img, md_content)
-    
-    # 转换为HTML
-    html_content = markdown(processed_md_content)
+    # 转换为HTML，启用扩展支持表格和代码块
+    html_content = markdown(md_content, extensions=['extra', 'nl2br', 'toc', 'meta', 'codehilite'])
     logging.debug(f"转换后HTML大小: {len(html_content)} 字节")
     
     # 提取标题作为section的标题和id
@@ -138,6 +145,9 @@ def main():
     # 确保输出目录存在
     output_dir.mkdir(exist_ok=True)
     logging.info(f"输出目录: {output_dir}")
+    
+    # 处理所有媒体图片
+    process_all_media_images(content_dir, output_dir)
     
     # 读取模板文件
     template = read_template(template_file)
